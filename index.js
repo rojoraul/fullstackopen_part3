@@ -54,10 +54,9 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const person = req.body
     const ids = persons.map((person) => person.id)
-    const maxId = Math.max(...ids)
 
     const newPerson = {
-        id: maxId + 1,
+        id: Math.floor(Math.random()*2000),
         name: person.name,
         number: person.number
     }
