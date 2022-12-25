@@ -51,6 +51,22 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
+app.post('/api/persons', (req, res) => {
+    const person = req.body
+    const ids = persons.map((person) => person.id)
+    const maxId = Math.max(...ids)
+
+    const newPerson = {
+        id: maxId + 1,
+        name: person.name,
+        number: person.number
+    }
+
+    persons = [...persons, newPerson]
+
+    res.status(201).json(newPerson)
+})  
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
