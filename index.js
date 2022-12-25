@@ -6,6 +6,7 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
+const errorHandler = require('./middlewares/errorHandler')
 
 app.use(express.json())
 app.use(morgan(function (tokens, req, res) {
@@ -70,10 +71,12 @@ app.delete('/api/persons/:id', (req, res) => {
     const {id} = req.params
     Person.findByIdAndDelete(id).then(response => {
         res.status(204).end()
+    }).catch(err => {
+        next(err)
     })
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const person = req.body
 
     if (!person.name || !person.number) {
@@ -89,10 +92,12 @@ app.post('/api/persons', (req, res) => {
 
     newPerson.save().then(savedPerson => {
         res.status(201).json(savedPerson)
+    }).catch(err => {
+        next(err)
     })
 })  
 
-app.put('/api/persons/:id', (req, res) => {
+app.put('/api/persons/:id', (req, res, next) => {
   const { id } = req.params
 
   const person = request.body
@@ -103,8 +108,12 @@ app.put('/api/persons/:id', (req, res) => {
 
   Person.findByIdAndUpdate(id, updatedPerson, { new: true }).then(result => {
     res.status(200).json(result)
+  }).catch(err => {
+      next(err)
   })
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
