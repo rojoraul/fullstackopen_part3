@@ -1,3 +1,4 @@
+require('dotenv').config()
 require('./mongo')
 
 const Person = require('./models/Person')
@@ -62,23 +63,20 @@ app.get('/api/persons/:id', (req, res) => {
     const { id } = req.params
     Person.findById(id).then(person => {
         person ? res.json(person) : res.status(404).end()
-    }).catch(err => {
-        next(err)
     })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter((person) => person.id !== id)
-
-  // Devolvemos el estado 204 correspondiente
-  res.status(204).end()
+    const {id} = req.params
+    Person.findByIdAndDelete(id).then(response => {
+        res.status(204).end()
+    })
 })
 
 app.post('/api/persons', (req, res) => {
     const person = req.body
 
-    if (!person.content) {
+    if (!person.name || !person.number) {
         return res.status(400).json({
             error: 'required content field is missing'
         })
@@ -88,11 +86,25 @@ app.post('/api/persons', (req, res) => {
         name: person.name,
         number: person.number
     })
-    
+
     newPerson.save().then(savedPerson => {
         res.status(201).json(savedPerson)
     })
 })  
+
+app.put('/api/persons/:id', (req, res) => {
+  const { id } = req.params
+
+  const person = request.body
+  const updatedPerson = {
+    name: person.name,
+    number: person.number
+  }
+
+  Person.findByIdAndUpdate(id, updatedPerson, { new: true }).then(result => {
+    res.status(200).json(result)
+  })
+})
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
