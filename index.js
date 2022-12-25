@@ -35,6 +35,14 @@ app.get('/info', (res, req) => {
     req.send(`Phonebook has info for ${persons.length} people <br> ${actualDate}`)
 })
 
+app.get('/api/persons/:id', (res, req) => {
+    const id = Number(res.params.id)
+    const person = persons.find((person) => person.id === id)
+
+    // Si no encontramos la nota, devolvemos un 404
+    person ? req.json(person) : req.status(404).end()
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
