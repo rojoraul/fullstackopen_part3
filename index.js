@@ -1,5 +1,6 @@
 require('./mongo')
 
+const Person = require('./models/Person')
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -20,44 +21,50 @@ app.use(morgan(function (tokens, req, res) {
 }))
 app.use(cors())
 
-let persons = [
-    {
-        id: 1,
-        name: "Arto Hellas",
-        number: "040-123456"
-    },
-    {
-        id: 2,
-        name: "Ada Lovelace",
-        number: "39-44-532523"
-    },
-    {
-        id: 3,
-        name: "Dan Abramov",
-        number: "12-43-234345"
-    },
-    {
-        id: 4,
-        name: "Mary Poppendick",
-        number: "39-23-6423122"
-    }
-]
+// let persons = [
+//     {
+//         id: 1,
+//         name: "Arto Hellas",
+//         number: "040-123456"
+//     },
+//     {
+//         id: 2,
+//         name: "Ada Lovelace",
+//         number: "39-44-532523"
+//     },
+//     {
+//         id: 3,
+//         name: "Dan Abramov",
+//         number: "12-43-234345"
+//     },
+//     {
+//         id: 4,
+//         name: "Mary Poppendick",
+//         number: "39-23-6423122"
+//     }
+// ]
 
 app.get('/api/persons', (req, res) => {
-    res.send(persons)
+    Person.find({}).then(persons => {
+        res.json(persons)
+    })
 })
 
 app.get('/info', (req, res) => {
     let actualDate = new Date();
-    res.send(`Phonebook has info for ${persons.length} people <br> ${actualDate}`)
+
+    Person.find({}).then(persons => {
+        res.send(`Phonebook has info for ${persons.length} people <br> ${actualDate}`)
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find((person) => person.id === id)
-
-    // Si no encontramos la nota, devolvemos un 404
-    person ? res.json(person) : res.status(404).end()
+    const { id } = req.params
+    Person.findById(id).then(person => {
+        person ? res.json(person) : res.status(404).end()
+    }).catch(err => {
+        next(err)
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -71,21 +78,20 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const person = req.body
 
-    if (!person.number || !person.name) {
-        return res.status(403).json({error: "Name and number are required fields"}).end()
+    if (!person.content) {
+        return res.status(400).json({
+            error: 'required content field is missing'
+        })
     }
-    if(persons.find((person) => person.name === newPerson.name)) {
-        return res.status(403).json({error: "Name is an unique field"}).end()
-    } 
 
-    const newPerson = {
-        id: Math.floor(Math.random()*2000),
+    const newPerson = new Person({
         name: person.name,
         number: person.number
-    }   
+    })
     
-    persons = [...persons, newPerson]
-    return res.status(201).json(newPerson)
+    newPerson.save().then(savedPerson => {
+        res.status(201).json(savedPerson)
+    })
 })  
 
 const PORT = process.env.PORT || 3001
