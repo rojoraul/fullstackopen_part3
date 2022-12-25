@@ -3,7 +3,7 @@ const app = express()
 
 app.use(express.json())
 
-const persons = [
+let persons = [
     {
         id: 1,
         name: "Arto Hellas",
@@ -26,21 +26,29 @@ const persons = [
     }
 ]
 
-app.get('/api/persons', (res, req) => {
-    req.send(persons)
+app.get('/api/persons', (req, res) => {
+    res.send(persons)
 })
 
-app.get('/info', (res, req) => {
+app.get('/info', (req, res) => {
     let actualDate = new Date();
-    req.send(`Phonebook has info for ${persons.length} people <br> ${actualDate}`)
+    res.send(`Phonebook has info for ${persons.length} people <br> ${actualDate}`)
 })
 
-app.get('/api/persons/:id', (res, req) => {
-    const id = Number(res.params.id)
+app.get('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
     const person = persons.find((person) => person.id === id)
 
     // Si no encontramos la nota, devolvemos un 404
-    person ? req.json(person) : req.status(404).end()
+    person ? res.json(person) : res.status(404).end()
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  persons = persons.filter((person) => person.id !== id)
+
+  // Devolvemos el estado 204 correspondiente
+  res.status(204).end()
 })
 
 const PORT = process.env.PORT || 3001
