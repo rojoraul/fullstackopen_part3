@@ -53,17 +53,21 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
     const person = req.body
-    const ids = persons.map((person) => person.id)
 
     const newPerson = {
         id: Math.floor(Math.random()*2000),
         name: person.name,
         number: person.number
+    }    
+
+    if (!person.number || !person.name) {
+        res.status(403).json({error: "Name and number are required fields"}).end()
+    } else if (persons.find((person) => person.name === newPerson.name)) {
+        res.status(403).json({error: "Name is an unique field"}).end()
+    } else {
+        persons = [...persons, newPerson]
+        res.status(201).json(newPerson)
     }
-
-    persons = [...persons, newPerson]
-
-    res.status(201).json(newPerson)
 })  
 
 const PORT = process.env.PORT || 3001
