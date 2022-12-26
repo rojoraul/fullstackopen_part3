@@ -100,7 +100,7 @@ app.post('/api/persons', (req, res, next) => {
 app.put('/api/persons/:id', (req, res, next) => {
   const { id } = req.params
 
-  const person = request.body
+  const person = req.body
   const updatedPerson = {
     name: person.name,
     number: person.number
