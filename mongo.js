@@ -1,18 +1,18 @@
-const process = require('process')
+const process = require('process');
 
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 // const connectionString = `mongodb+srv://rrojo:${process.argv[2]}@cluster0.edfy6zh.mongodb.net/rauldb?retryWrites=true&w=majority`
 const connectionString = process.env.MONGODB_URI;
 
-const Person = require('./models/Person')
+// const Person = require('./models/Person');
 
-mongoose.set('strictQuery', false)
+mongoose.set('strictQuery', false);
 mongoose.connect(connectionString)
-  .then(() => {
-    console.log('Database connected')
-  }).catch(error => {
-    console.error(error)
-  })
+	.then(() => {
+		console.log('Database connected');
+	}).catch(error => {
+		console.error(error);
+	});
 
 // if (process.argv.length === 5) {
 //     const newPerson = new Person({
